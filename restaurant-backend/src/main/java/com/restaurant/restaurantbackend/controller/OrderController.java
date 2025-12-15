@@ -1,5 +1,6 @@
 package com.restaurant.restaurantbackend.controller;
 
+import com.restaurant.restaurantbackend.dto.StatusUpdateDTO;
 import com.restaurant.restaurantbackend.model.Order;
 import com.restaurant.restaurantbackend.service.OrderService;
 import org.springframework.http.HttpStatus;
@@ -39,8 +40,11 @@ public class OrderController {
 
     // Sadece siparişin durumunu güncellemek için özel bir endpoint
     @PutMapping("/{id}/status")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id, @RequestBody String status) {
-        Order updatedOrder = orderService.updateOrderStatus(id, status);
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id, @RequestBody StatusUpdateDTO statusDTO) {
+        if (statusDTO.getStatus() == null || statusDTO.getStatus().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Order updatedOrder = orderService.updateOrderStatus(id, statusDTO.getStatus());
         return ResponseEntity.ok(updatedOrder);
     }
 }
