@@ -8,6 +8,7 @@ import com.restaurant.restaurantbackend.repository.OrderItemRepository;
 import com.restaurant.restaurantbackend.repository.OrderRepository;
 import com.restaurant.restaurantbackend.repository.ProductRepository;
 import com.restaurant.restaurantbackend.repository.RestaurantTableRepository;
+import com.restaurant.restaurantbackend.repository.TableRequestRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -22,17 +23,20 @@ public class DataInitializer implements CommandLineRunner {
     private final RestaurantTableRepository tableRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final TableRequestRepository tableRequestRepository;
 
     public DataInitializer(CategoryRepository categoryRepository, 
                           ProductRepository productRepository,
                           RestaurantTableRepository tableRepository,
                           OrderRepository orderRepository,
-                          OrderItemRepository orderItemRepository) {
+                          OrderItemRepository orderItemRepository,
+                          TableRequestRepository tableRequestRepository) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.tableRepository = tableRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.tableRequestRepository = tableRequestRepository;
     }
 
     @Override
@@ -47,12 +51,15 @@ public class DataInitializer implements CommandLineRunner {
         
         // Mevcut verileri temizle ve yeniden ekle
         // ÖNEMLİ: Foreign key constraint'ler nedeniyle sıralama önemli!
-        // 1. Önce order_items'ı sil (Product'a foreign key var)
-        // 2. Sonra orders'ı sil
-        // 3. Sonra products'ı sil
-        // 4. Sonra categories ve tables'ı sil
+        // 1. Önce table_requests'ı sil (tables'a foreign key var)
+        // 2. Sonra order_items'ı sil (Product ve Order'a foreign key var)
+        // 3. Sonra orders'ı sil (tables'a foreign key var)
+        // 4. Sonra products'ı sil (categories'a foreign key var)
+        // 5. Sonra categories'ı sil
+        // 6. Son olarak tables'ı sil
         System.out.println("🔄 Mevcut veriler temizleniyor ve test verileri ekleniyor...");
-        orderItemRepository.deleteAll(); // Önce order_items'ı sil
+        tableRequestRepository.deleteAll(); // Önce table_requests'ı sil
+        orderItemRepository.deleteAll(); // Sonra order_items'ı sil
         orderRepository.deleteAll(); // Sonra orders'ı sil
         productRepository.deleteAll(); // Sonra products'ı sil
         categoryRepository.deleteAll(); // Sonra categories'ı sil

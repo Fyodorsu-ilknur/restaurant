@@ -61,5 +61,10 @@ export const tableRequestAPI = {
   updateStatus: (id, status) => api.put(`/table-requests/${id}/status`, { status }),
 }
 
+// Chatbot API'leri
+export const chatbotAPI = {
+  chat: (message) => api.post('/chatbot/chat', { message }),
+}
+
 export default api
 

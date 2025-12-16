@@ -10,6 +10,10 @@ import OrderTrackingPage from './pages/OrderTrackingPage'
 import KitchenPage from './pages/KitchenPage'
 import TestPage from './pages/TestPage'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import MenuManagement from './pages/admin/MenuManagement'
+import TableManagement from './pages/admin/TableManagement'
+import OrderManagement from './pages/admin/OrderManagement'
+import RequestManagement from './pages/admin/RequestManagement'
 
 function App() {
   return (
@@ -23,10 +27,10 @@ function App() {
           <Route path="/tracking/:orderId" element={<OrderTrackingPage />} />
           <Route path="/kitchen" element={<KitchenPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/menu" element={<AdminDashboard />} />
-          <Route path="/admin/tables" element={<AdminDashboard />} />
-          <Route path="/admin/orders" element={<AdminDashboard />} />
-          <Route path="/admin/requests" element={<AdminDashboard />} />
+          <Route path="/admin/menu" element={<MenuManagement />} />
+          <Route path="/admin/tables" element={<TableManagement />} />
+          <Route path="/admin/orders" element={<OrderManagement />} />
+          <Route path="/admin/requests" element={<RequestManagement />} />
         </Routes>
         <ToastContainer
           position="top-right"

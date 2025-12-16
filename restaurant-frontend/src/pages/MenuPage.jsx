@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { categoryAPI, productAPI, tableRequestAPI, tableAPI } from '../services/api'
+import { categoryAPI, productAPI, tableRequestAPI, tableAPI, chatbotAPI } from '../services/api'
 import { toast } from 'react-toastify'
 import './MenuPage.css'
 
@@ -18,6 +18,13 @@ function MenuPage() {
   const [requestType, setRequestType] = useState('GARSON_CAĞIR')
   const [requestMessage, setRequestMessage] = useState('')
   const [table, setTable] = useState(null)
+  const [showChatbot, setShowChatbot] = useState(false)
+  const [chatMessages, setChatMessages] = useState([
+    { type: 'bot', message: 'Merhaba! 👋 Size nasıl yardımcı olabilirim? Menü hakkında sorularınızı sorabilir, vegan/vejetaryen ürünler hakkında bilgi alabilir veya öneri isteyebilirsiniz.' }
+  ])
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
+  const chatEndRef = useRef(null)
 
   const allergenBadges = (product) => {
     const allergens = product.allergens || []
@@ -82,6 +89,7 @@ function MenuPage() {
 
     loadData()
     loadTable()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableId])
 
   const loadTable = async () => {
@@ -370,6 +378,41 @@ function MenuPage() {
     }
   }
 
+  const handleSendChatMessage = async () => {
+    if (!chatInput.trim() || chatLoading) {
+      return
+    }
+
+    const userMessage = chatInput.trim()
+    setChatInput('')
+    
+    // Kullanıcı mesajını ekle
+    setChatMessages(prev => [...prev, { type: 'user', message: userMessage }])
+    setChatLoading(true)
+
+    try {
+      const response = await chatbotAPI.chat(userMessage)
+      const botResponse = response.data?.response || response.data || 'Üzgünüm, şu anda yanıt veremiyorum.'
+      
+      setChatMessages(prev => [...prev, { type: 'bot', message: botResponse }])
+    } catch (error) {
+      console.error('Chatbot hatası:', error)
+      setChatMessages(prev => [...prev, { 
+        type: 'bot', 
+        message: 'Üzgünüm, bir hata oluştu. Lütfen daha sonra tekrar deneyin.' 
+      }])
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
+  // Chat mesajları değiştiğinde scroll yap
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [chatMessages, chatLoading])
+
   const filteredProducts = selectedCategory
     ? products.filter(p => p.category?.id === selectedCategory)
     : products
@@ -602,6 +645,78 @@ function MenuPage() {
           </div>
         </div>
       )}
+
+      {/* Chatbot Widget */}
+      <div className={`chatbot-widget ${showChatbot ? 'open' : ''}`}>
+        <div className="chatbot-header" onClick={() => setShowChatbot(!showChatbot)}>
+          <div className="chatbot-title">
+            <span>🤖</span>
+            <span>Yardımcı Asistan</span>
+          </div>
+          <button 
+            type="button"
+            className="chatbot-toggle"
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowChatbot(!showChatbot)
+            }}
+          >
+            {showChatbot ? '▼' : '▲'}
+          </button>
+        </div>
+        
+        {showChatbot && (
+          <div className="chatbot-content">
+            <div className="chatbot-messages">
+              {chatMessages.map((msg, index) => (
+                <div key={index} className={`chat-message ${msg.type}`}>
+                  <div className="message-bubble">
+                    {msg.type === 'bot' && <span className="bot-icon">🤖</span>}
+                    <p>{msg.message}</p>
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="chat-message bot">
+                  <div className="message-bubble">
+                    <span className="bot-icon">🤖</span>
+                    <div className="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+            
+            <div className="chatbot-input-container">
+              <input
+                type="text"
+                className="chatbot-input"
+                placeholder="Mesajınızı yazın..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !chatLoading) {
+                    handleSendChatMessage()
+                  }
+                }}
+                disabled={chatLoading}
+              />
+              <button
+                type="button"
+                className="chatbot-send-btn"
+                onClick={handleSendChatMessage}
+                disabled={chatLoading || !chatInput.trim()}
+              >
+                ➤
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
