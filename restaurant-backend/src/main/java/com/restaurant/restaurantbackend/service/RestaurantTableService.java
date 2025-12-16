@@ -31,6 +31,18 @@ public class RestaurantTableService {
         return restaurantTableRepository.findById(id);
     }
 
+    public Optional<RestaurantTable> getTableByNumber(@NonNull String tableNumber) {
+        if (tableNumber == null || tableNumber.isEmpty()) {
+            throw new IllegalArgumentException("Table number cannot be null or empty");
+        }
+        // Eğer sadece sayı girildiyse "Masa " prefix'i ekle
+        String normalizedTableNumber = tableNumber.trim();
+        if (normalizedTableNumber.matches("^\\d+$")) {
+            normalizedTableNumber = "Masa " + normalizedTableNumber;
+        }
+        return restaurantTableRepository.findByTableNumber(normalizedTableNumber);
+    }
+
     @Transactional
     public RestaurantTable createOrUpdateTable(RestaurantTable table) {
         // Eğer yeni masa oluşturuluyorsa veya QR kod yoksa, QR kod içeriğini oluştur

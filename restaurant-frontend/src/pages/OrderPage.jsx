@@ -32,9 +32,26 @@ function OrderPage() {
 
   const loadTable = async (id) => {
     try {
-      const response = await tableAPI.getById(id)
+      // Önce ID olarak dene
+      const tableIdNum = parseInt(id)
+      if (!isNaN(tableIdNum)) {
+        try {
+          const response = await tableAPI.getById(tableIdNum)
+          setTable(response.data)
+          return
+        } catch (idError) {
+          // ID ile bulunamazsa tableNumber olarak dene
+          console.log('ID ile masa bulunamadı, tableNumber olarak deneniyor:', id)
+        }
+      }
+      
+      // tableNumber olarak dene
+      const response = await tableAPI.getByNumber(id)
       setTable(response.data)
     } catch (error) {
+      console.error('Masa yükleme hatası:', error)
+      console.error('Masa ID/Number:', id)
+      console.error('Hata detayı:', error.response?.data || error.message)
       toast.error('Masa bilgisi yüklenemedi')
     }
   }
@@ -68,8 +85,22 @@ function OrderPage() {
         notes: item.notes
       }))
 
+      // Masa bilgisini al (table veya tableId'den)
+      let tableIdForOrder
+      if (table && table.id) {
+        tableIdForOrder = table.id
+      } else {
+        // table yüklenemediyse, tableId'yi parse et
+        const parsedId = parseInt(currentTableId)
+        if (isNaN(parsedId)) {
+          toast.error('Geçersiz masa bilgisi')
+          return
+        }
+        tableIdForOrder = parsedId
+      }
+
       const order = {
-        restaurantTable: { id: parseInt(currentTableId) },
+        restaurantTable: { id: tableIdForOrder },
         orderItems: orderItems,
         totalAmount: getTotalPrice(),
         paymentMethod: paymentMethod,
@@ -91,8 +122,11 @@ function OrderPage() {
       // Sipariş takip sayfasına yönlendir
       navigate(`/tracking/${orderId}`, { state: { tableId: currentTableId } })
     } catch (error) {
-      toast.error('Sipariş oluşturulurken hata oluştu')
-      console.error(error)
+      console.error('Sipariş oluşturma hatası:', error)
+      console.error('Hata detayı:', error.response?.data || error.message)
+      
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Sipariş oluşturulurken hata oluştu'
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }

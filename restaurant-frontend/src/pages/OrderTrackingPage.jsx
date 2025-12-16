@@ -190,8 +190,11 @@ function OrderTrackingPage() {
         </div>
 
         <div className="tracking-actions">
+          <button onClick={() => navigate(`/menu?tableId=${tableId || order.restaurantTable?.id}`)} className="menu-btn">
+            📋 Menüye Dön
+          </button>
           <button onClick={() => navigate('/')} className="home-btn">
-            Ana Sayfaya Dön
+            📱 QR Ekranına Dön
           </button>
         </div>
       </div>

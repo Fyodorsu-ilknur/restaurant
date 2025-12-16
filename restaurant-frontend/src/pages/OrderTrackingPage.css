@@ -236,8 +236,12 @@
 
 .tracking-actions {
   text-align: center;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
 }
 
+.menu-btn,
 .home-btn {
   padding: 15px 40px;
   background: #c41e3a;
@@ -247,11 +251,23 @@
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
+}
+
+.menu-btn {
+  background: #6c757d;
+}
+
+.menu-btn:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
 }
 
 .home-btn:hover {
   background: #a52a2a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(196, 30, 58, 0.4);
 }
 
 .loading {

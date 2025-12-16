@@ -37,14 +37,30 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
+  min-height: 300px;
+  background: #000;
 }
 
 #qr-reader {
   border-radius: 10px;
+  width: 100% !important;
 }
 
 #qr-reader__dashboard {
-  display: none; /* html5-qrcode'un kendi dashboard'unu gizle */
+  display: none !important; /* html5-qrcode'un kendi dashboard'unu gizle */
+}
+
+#qr-reader__camera_selection {
+  display: none !important; /* Kamera seçim menüsünü gizle */
+}
+
+#qr-reader__scan_region {
+  border: 2px solid #c41e3a !important;
+  border-radius: 10px;
+}
+
+#qr-reader__scan_region video {
+  border-radius: 10px;
 }
 
 .scan-line {
@@ -75,19 +91,79 @@
   font-size: 18px;
 }
 
-.manual-enter-btn {
+.scanner-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 20px;
+}
+
+.start-scan-btn,
+.stop-scan-btn,
+.manual-enter-btn {
   padding: 12px 24px;
-  background: #c41e3a;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.start-scan-btn {
+  background: #c41e3a;
+}
+
+.start-scan-btn:hover {
+  background: #a52a2a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(196, 30, 58, 0.4);
+}
+
+.stop-scan-btn {
+  background: #dc3545;
+}
+
+.stop-scan-btn:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.manual-enter-btn {
+  background: #6c757d;
 }
 
 .manual-enter-btn:hover {
-  background: #a52a2a;
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+.admin-links {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.kitchen-link-btn {
+  width: 100%;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(196, 30, 58, 0.3);
+}
+
+.kitchen-link-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(196, 30, 58, 0.5);
+  background: linear-gradient(135deg, #a52a2a 0%, #6b0000 100%);
 }
 

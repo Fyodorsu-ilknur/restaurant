@@ -37,6 +37,13 @@ public class RestaurantTableController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/by-number/{tableNumber}")
+    public ResponseEntity<RestaurantTable> getTableByNumber(@PathVariable @NonNull String tableNumber) {
+        return tableService.getTableByNumber(tableNumber)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public ResponseEntity<RestaurantTable> createTable(@RequestBody @NonNull RestaurantTable table) {
         RestaurantTable newTable = tableService.createOrUpdateTable(table);

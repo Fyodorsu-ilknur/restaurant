@@ -34,6 +34,7 @@ export const productAPI = {
 export const tableAPI = {
   getAll: () => api.get('/tables'),
   getById: (id) => api.get(`/tables/${id}`),
+  getByNumber: (tableNumber) => api.get(`/tables/by-number/${encodeURIComponent(tableNumber)}`),
   getQRCode: (id) => api.get(`/tables/${id}/qr-code`, { responseType: 'blob' }),
   getQRCodeContent: (id) => api.get(`/tables/${id}/qr-code-content`),
   create: (table) => api.post('/tables', table),
@@ -48,6 +49,16 @@ export const orderAPI = {
   getById: (id) => api.get(`/orders/${id}`),
   create: (order) => api.post('/orders', order),
   updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
+}
+
+// Masa İsteği/Şikayet API'leri
+export const tableRequestAPI = {
+  getAll: () => api.get('/table-requests'),
+  getPending: () => api.get('/table-requests/pending'),
+  getByTable: (tableId) => api.get(`/table-requests/table/${tableId}`),
+  getById: (id) => api.get(`/table-requests/${id}`),
+  create: (request) => api.post('/table-requests', request),
+  updateStatus: (id, status) => api.put(`/table-requests/${id}/status`, { status }),
 }
 
 export default api

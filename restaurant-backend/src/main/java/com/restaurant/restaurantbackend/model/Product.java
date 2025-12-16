@@ -39,6 +39,8 @@ public class Product {
     private String imageUrl;
 
     private boolean isAvailable = true;
+    private Boolean isVegan = false;
+    private Boolean isVegetarian = false;
 
     // Hazırlanma süresi (dakika cinsinden)
     private Integer preparationTime;

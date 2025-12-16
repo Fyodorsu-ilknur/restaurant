@@ -26,6 +26,11 @@ public class OrderService {
 
     @Transactional
     public Order createOrder(Order order) {
+        // RestaurantTable kontrolü
+        if (order.getRestaurantTable() == null || order.getRestaurantTable().getId() == null) {
+            throw new IllegalArgumentException("Order must have a valid restaurant table");
+        }
+        
         // OrderItems null kontrolü
         if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
             throw new IllegalArgumentException("Order must have at least one item");

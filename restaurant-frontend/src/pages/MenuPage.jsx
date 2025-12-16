@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { categoryAPI, productAPI } from '../services/api'
+import { categoryAPI, productAPI, tableRequestAPI, tableAPI } from '../services/api'
 import { toast } from 'react-toastify'
 import './MenuPage.css'
 
@@ -14,6 +14,64 @@ function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [cart, setCart] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showRequestModal, setShowRequestModal] = useState(false)
+  const [requestType, setRequestType] = useState('GARSON_CAĞIR')
+  const [requestMessage, setRequestMessage] = useState('')
+  const [table, setTable] = useState(null)
+
+  const allergenBadges = (product) => {
+    const allergens = product.allergens || []
+    const tags = []
+
+    // Backend'den gelen alerjen bilgilerini kullan
+    allergens.forEach(allergen => {
+      const allergenLower = allergen.toLowerCase()
+      
+      // Yüksek riskli alerjenler
+      if (allergenLower.includes('fıstık') || allergenLower.includes('yer fıstığı') || allergenLower.includes('peanut')) {
+        tags.push({ label: '⚠️ Fıstık', type: 'danger' })
+      } else if (allergenLower.includes('susam') || allergenLower.includes('tahin')) {
+        tags.push({ label: '⚠️ Susam', type: 'danger' })
+      } else if (allergenLower.includes('mantar')) {
+        tags.push({ label: '⚠️ Mantar', type: 'danger' })
+      } else if (allergenLower.includes('yumurta') || allergenLower.includes('egg')) {
+        tags.push({ label: '⚠️ Yumurta', type: 'danger' })
+      } else if (allergenLower.includes('laktoz') || allergenLower.includes('süt') || allergenLower.includes('dairy')) {
+        tags.push({ label: '⚠️ Laktoz/Süt', type: 'danger' })
+      } else if (allergenLower.includes('ceviz') || allergenLower.includes('fındık') || allergenLower.includes('badem')) {
+        tags.push({ label: '⚠️ Kuruyemiş', type: 'danger' })
+      } else if (allergenLower.includes('deniz') || allergenLower.includes('balık') || allergenLower.includes('karides') || allergenLower.includes('kalamar')) {
+        tags.push({ label: '⚠️ Deniz Ürünü', type: 'danger' })
+      } else if (allergenLower.includes('gluten')) {
+        // Gluten bilgi amaçlı
+        if (allergenLower.includes('içermez') || allergenLower.includes('içermez')) {
+          tags.push({ label: '✓ Glutensiz', type: 'info' })
+        } else {
+          tags.push({ label: '⚠️ Gluten', type: 'danger' })
+        }
+      } else if (allergenLower && allergenLower.trim() !== '') {
+        // Diğer alerjenler
+        tags.push({ label: `⚠️ ${allergen}`, type: 'warning' })
+      }
+    })
+
+    // Tekrar eden badge'leri kaldır
+    const uniqueTags = tags.filter((tag, index, self) =>
+      index === self.findIndex(t => t.label === tag.label)
+    )
+
+    return uniqueTags
+  }
+
+  const dietBadge = (product) => {
+    // Backend'den gelen vegan/vejetaryen bilgilerini kullan
+    if (product.isVegan === true) {
+      return { label: '🌱 Vegan', type: 'success' }
+    } else if (product.isVegetarian === true) {
+      return { label: '🥗 Vejetaryen', type: 'success' }
+    }
+    return null
+  }
 
   useEffect(() => {
     if (!tableId) {
@@ -23,7 +81,30 @@ function MenuPage() {
     }
 
     loadData()
+    loadTable()
   }, [tableId])
+
+  const loadTable = async () => {
+    try {
+      // Önce ID olarak dene
+      const tableIdNum = parseInt(tableId)
+      if (!isNaN(tableIdNum)) {
+        try {
+          const response = await tableAPI.getById(tableIdNum)
+          setTable(response.data)
+          return
+        } catch (idError) {
+          // ID ile bulunamazsa tableNumber olarak dene
+        }
+      }
+      
+      // tableNumber olarak dene
+      const response = await tableAPI.getByNumber(tableId)
+      setTable(response.data)
+    } catch (error) {
+      console.error('Masa yükleme hatası:', error)
+    }
+  }
 
   const loadData = async () => {
     try {
@@ -91,7 +172,9 @@ function MenuPage() {
             isAvailable: p.isAvailable !== false,
             available: p.isAvailable !== false,
             preparationTime: p.preparationTime || null,
-            allergens: p.allergens || []
+            allergens: p.allergens || [],
+            isVegan: p.isVegan === true,
+            isVegetarian: p.isVegetarian === true
           }
         })
       
@@ -111,6 +194,71 @@ function MenuPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // --- Yardımcılar ---
+  const normalizeText = (product) => {
+    const parts = [
+      product.name || '',
+      product.description || '',
+      ...(product.allergens || [])
+    ]
+    return parts.join(' ').toLowerCase()
+  }
+
+  const getAllergenBadges = (product) => {
+    const badges = []
+    const allergens = product.allergens || []
+
+    // Backend'den gelen alerjen bilgilerini kullan
+    allergens.forEach(allergen => {
+      const allergenLower = allergen.toLowerCase()
+      
+      // Yüksek riskli alerjenler
+      if (allergenLower.includes('fıstık') || allergenLower.includes('yer fıstığı') || allergenLower.includes('peanut')) {
+        badges.push({ label: '⚠️ Fıstık', type: 'danger' })
+      } else if (allergenLower.includes('susam') || allergenLower.includes('tahin')) {
+        badges.push({ label: '⚠️ Susam', type: 'danger' })
+      } else if (allergenLower.includes('mantar')) {
+        badges.push({ label: '⚠️ Mantar', type: 'danger' })
+      } else if (allergenLower.includes('yumurta') || allergenLower.includes('egg')) {
+        badges.push({ label: '⚠️ Yumurta', type: 'danger' })
+      } else if (allergenLower.includes('laktoz') || allergenLower.includes('süt') || allergenLower.includes('dairy')) {
+        badges.push({ label: '⚠️ Laktoz/Süt', type: 'danger' })
+      } else if (allergenLower.includes('ceviz') || allergenLower.includes('fındık') || allergenLower.includes('badem')) {
+        badges.push({ label: '⚠️ Kuruyemiş', type: 'danger' })
+      } else if (allergenLower.includes('gluten')) {
+        // Gluten bilgi amaçlı
+        if (allergenLower.includes('içermez') || allergenLower.includes('içermez')) {
+          badges.push({ label: '✓ Glutensiz', type: 'info' })
+        } else {
+          badges.push({ label: '⚠️ Gluten', type: 'danger' })
+        }
+      } else {
+        // Diğer alerjenler
+        badges.push({ label: `⚠️ ${allergen}`, type: 'warning' })
+      }
+    })
+
+    // Tekrar eden badge'leri kaldır
+    const uniqueBadges = badges.filter((badge, index, self) =>
+      index === self.findIndex(b => b.label === badge.label)
+    )
+
+    return uniqueBadges
+  }
+
+  const getDietaryBadges = (product) => {
+    const badges = []
+    
+    // Backend'den gelen vegan/vejetaryen bilgilerini kullan
+    if (product.isVegan === true) {
+      badges.push({ label: '🌱 Vegan', type: 'success' })
+    } else if (product.isVegetarian === true) {
+      badges.push({ label: '🥗 Vejetaryen', type: 'success' })
+    }
+
+    return badges
   }
 
   const addToCart = (product) => {
@@ -161,6 +309,67 @@ function MenuPage() {
     }, 0)
   }
 
+  const handleRequestGarson = async () => {
+    if (!table || !table.id) {
+      toast.error('Masa bilgisi bulunamadı')
+      return
+    }
+
+    try {
+      const request = {
+        restaurantTable: { id: table.id },
+        requestType: 'GARSON_CAĞIR',
+        message: 'Garson çağırıldı'
+      }
+      await tableRequestAPI.create(request)
+      toast.success('Garson çağrıldı! En kısa sürede yanınızda olacak.')
+    } catch (error) {
+      console.error('Garson çağırma hatası:', error)
+      toast.error('Garson çağrılırken hata oluştu')
+    }
+  }
+
+  const handleOpenRequestModal = (type) => {
+    setRequestType(type)
+    setRequestMessage('')
+    setShowRequestModal(true)
+  }
+
+  const handleSubmitRequest = async () => {
+    if (!table || !table.id) {
+      toast.error('Masa bilgisi bulunamadı')
+      return
+    }
+
+    if (requestMessage.trim() === '' && requestType !== 'GARSON_CAĞIR') {
+      toast.error('Lütfen mesajınızı yazın')
+      return
+    }
+
+    try {
+      const request = {
+        restaurantTable: { id: table.id },
+        requestType: requestType,
+        message: requestMessage.trim() || (requestType === 'GARSON_CAĞIR' ? 'Garson çağırıldı' : '')
+      }
+      await tableRequestAPI.create(request)
+      
+      const typeLabels = {
+        'GARSON_CAĞIR': 'Garson çağrıldı',
+        'İSTEK': 'İsteğiniz alındı',
+        'ŞİKAYET': 'Şikayetiniz alındı',
+        'YARDIM': 'Yardım talebiniz alındı'
+      }
+      
+      toast.success(typeLabels[requestType] + '! En kısa sürede yanınızda olacak.')
+      setShowRequestModal(false)
+      setRequestMessage('')
+    } catch (error) {
+      console.error('İstek gönderme hatası:', error)
+      toast.error('İstek gönderilirken hata oluştu')
+    }
+  }
+
   const filteredProducts = selectedCategory
     ? products.filter(p => p.category?.id === selectedCategory)
     : products
@@ -172,8 +381,28 @@ function MenuPage() {
   return (
     <div className="menu-page">
       <header className="menu-header">
-        <h1>Menü</h1>
-        <p className="table-info">Masa: {tableId}</p>
+        <div className="header-content">
+          <div>
+            <h1>Menü</h1>
+            <p className="table-info">Masa: {table?.tableNumber || tableId}</p>
+          </div>
+          <div className="header-actions">
+            <button 
+              className="request-btn garson-btn"
+              onClick={handleRequestGarson}
+              title="Garson Çağır"
+            >
+              🛎️ Garson Çağır
+            </button>
+            <button 
+              className="request-btn help-btn"
+              onClick={() => handleOpenRequestModal('İSTEK')}
+              title="Dilek/Şikayet"
+            >
+              💬 Dilek/Şikayet
+            </button>
+          </div>
+        </div>
       </header>
 
       <div className="menu-content">
@@ -226,6 +455,14 @@ function MenuPage() {
                         ⏱️ {product.preparationTime} dakika
                       </p>
                     )}
+                    <div className="badges">
+                      {dietBadge(product) && (
+                        <span className={`badge ${dietBadge(product).type}`}>{dietBadge(product).label}</span>
+                      )}
+                      {allergenBadges(product).map((badge, idx) => (
+                        <span key={idx} className={`badge ${badge.type}`}>{badge.label}</span>
+                      ))}
+                    </div>
                     <div className="product-footer">
                       <span className="product-price">
                         {typeof product.price === 'number' 
@@ -299,6 +536,72 @@ function MenuPage() {
           )}
         </div>
       </div>
+
+      {/* İstek/Şikayet Modal */}
+      {showRequestModal && (
+        <div className="modal-overlay" onClick={() => setShowRequestModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>
+                {requestType === 'İSTEK' && '📋 Dilek/İstek Gönder'}
+                {requestType === 'ŞİKAYET' && '⚠️ Şikayet Bildir'}
+                {requestType === 'YARDIM' && '🆘 Yardım İste'}
+              </h2>
+              <button className="modal-close" onClick={() => setShowRequestModal(false)}>
+                ✕
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="request-type-selector">
+                <button
+                  className={`type-btn ${requestType === 'İSTEK' ? 'active' : ''}`}
+                  onClick={() => setRequestType('İSTEK')}
+                >
+                  📋 İstek
+                </button>
+                <button
+                  className={`type-btn ${requestType === 'ŞİKAYET' ? 'active' : ''}`}
+                  onClick={() => setRequestType('ŞİKAYET')}
+                >
+                  ⚠️ Şikayet
+                </button>
+                <button
+                  className={`type-btn ${requestType === 'YARDIM' ? 'active' : ''}`}
+                  onClick={() => setRequestType('YARDIM')}
+                >
+                  🆘 Yardım
+                </button>
+                <button
+                  className={`type-btn ${requestType === 'DİLEK' ? 'active' : ''}`}
+                  onClick={() => setRequestType('İSTEK')}
+                  style={{ display: 'none' }}
+                >
+                  📋 Dilek
+                </button>
+              </div>
+              <textarea
+                className="request-textarea"
+                value={requestMessage}
+                onChange={(e) => setRequestMessage(e.target.value)}
+                placeholder={
+                  requestType === 'İSTEK' ? 'Dilek veya isteğinizi yazın...' :
+                  requestType === 'ŞİKAYET' ? 'Şikayetinizi yazın...' :
+                  'Yardım talebinizi yazın...'
+                }
+                rows="5"
+              />
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-btn" onClick={() => setShowRequestModal(false)}>
+                İptal
+              </button>
+              <button className="submit-btn" onClick={handleSubmitRequest}>
+                Gönder
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

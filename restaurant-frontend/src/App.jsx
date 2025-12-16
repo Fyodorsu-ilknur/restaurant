@@ -7,7 +7,9 @@ import QRScannerPage from './pages/QRScannerPage'
 import MenuPage from './pages/MenuPage'
 import OrderPage from './pages/OrderPage'
 import OrderTrackingPage from './pages/OrderTrackingPage'
+import KitchenPage from './pages/KitchenPage'
 import TestPage from './pages/TestPage'
+import AdminDashboard from './pages/admin/AdminDashboard'
 
 function App() {
   return (
@@ -19,6 +21,12 @@ function App() {
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/order" element={<OrderPage />} />
           <Route path="/tracking/:orderId" element={<OrderTrackingPage />} />
+          <Route path="/kitchen" element={<KitchenPage />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/menu" element={<AdminDashboard />} />
+          <Route path="/admin/tables" element={<AdminDashboard />} />
+          <Route path="/admin/orders" element={<AdminDashboard />} />
+          <Route path="/admin/requests" element={<AdminDashboard />} />
         </Routes>
         <ToastContainer
           position="top-right"
