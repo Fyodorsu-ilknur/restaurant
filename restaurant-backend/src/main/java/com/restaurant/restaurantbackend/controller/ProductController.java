@@ -4,6 +4,7 @@ import com.restaurant.restaurantbackend.model.Product;
 import com.restaurant.restaurantbackend.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,20 +32,20 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<Product> getProductById(@PathVariable @NonNull Long id) {
         return productService.getProductById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<Product> createProduct(@RequestBody @NonNull Product product) {
         Product newProduct = productService.createOrUpdateProduct(product);
         return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@PathVariable @NonNull Long id, @RequestBody @NonNull Product product) {
         // ID'nin güncellenmediğinden emin olmak için bu kontrolü ekleyebiliriz.
         // Ancak şimdilik servisimize güveniyoruz.
         Product updatedProduct = productService.createOrUpdateProduct(product);
@@ -52,7 +53,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable @NonNull Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }

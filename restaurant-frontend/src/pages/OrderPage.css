@@ -1,0 +1,184 @@
+.order-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.order-container {
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-container h1 {
+  margin: 0 0 30px 0;
+  color: #333;
+  text-align: center;
+}
+
+.order-section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.order-section:last-of-type {
+  border-bottom: none;
+}
+
+.order-section h2 {
+  margin: 0 0 15px 0;
+  color: #c41e3a;
+  font-size: 18px;
+}
+
+.order-items {
+  margin-bottom: 15px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item-info h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.quantity {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.notes {
+  margin: 5px 0 0 0;
+  color: #999;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.order-item-price {
+  color: #c41e3a;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.order-total {
+  text-align: right;
+  font-size: 20px;
+  color: #333;
+  padding-top: 15px;
+  border-top: 2px solid #eee;
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.payment-option:hover {
+  border-color: #c41e3a;
+  background: #f8f9ff;
+}
+
+.payment-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.payment-option input[type="radio"]:checked + span {
+  color: #c41e3a;
+  font-weight: bold;
+}
+
+.payment-option span {
+  flex: 1;
+  color: #333;
+}
+
+.notes-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.order-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.back-btn,
+.submit-btn {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-btn {
+  background: #ddd;
+  color: #333;
+}
+
+.back-btn:hover {
+  background: #ccc;
+}
+
+.submit-btn {
+  background: #c41e3a;
+  color: white;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #a52a2a;
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  padding: 100px;
+  font-size: 24px;
+  color: #c41e3a;
+}
+

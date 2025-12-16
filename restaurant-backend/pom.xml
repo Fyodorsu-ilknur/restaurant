@@ -68,6 +68,18 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- QR Kod oluşturma için ZXing kütüphanesi -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+
         <!-- Spring Boot uygulamalarını test etmek için temel bağımlılıklar -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

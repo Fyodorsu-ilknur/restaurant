@@ -2,6 +2,7 @@ package com.restaurant.restaurantbackend.service;
 
 import com.restaurant.restaurantbackend.model.Category;
 import com.restaurant.restaurantbackend.repository.CategoryRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +20,24 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Optional<Category> getCategoryById(Long id) {
+    public Optional<Category> getCategoryById(@NonNull Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Category ID cannot be null");
+        }
         return categoryRepository.findById(id);
     }
 
-    public Category createOrUpdateCategory(Category category) {
+    public Category createOrUpdateCategory(@NonNull Category category) {
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null");
+        }
         return categoryRepository.save(category);
     }
 
-    public void deleteCategory(Long id) {
+    public void deleteCategory(@NonNull Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Category ID cannot be null");
+        }
         categoryRepository.deleteById(id);
     }
 }

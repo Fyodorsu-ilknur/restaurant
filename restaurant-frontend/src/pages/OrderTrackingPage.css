@@ -1,0 +1,292 @@
+.order-tracking-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.tracking-container {
+  max-width: 700px;
+  width: 100%;
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.tracking-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.tracking-header h1 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 32px;
+}
+
+.order-number {
+  color: #c41e3a;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.status-timeline {
+  margin-bottom: 40px;
+}
+
+.status-timeline h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 40px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ddd;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -25px;
+  top: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ddd;
+  border: 3px solid white;
+  z-index: 1;
+}
+
+.timeline-item.completed::before {
+  background: #4caf50;
+}
+
+.timeline-item.active::before {
+  background: #c41e3a;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.timeline-icon {
+  font-size: 32px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-radius: 50%;
+}
+
+.timeline-item.active .timeline-icon {
+  background: #f0f4ff;
+}
+
+.timeline-content h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.timeline-item.completed .timeline-content h3 {
+  color: #999;
+}
+
+.current-status {
+  margin: 0;
+  color: #c41e3a;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.order-details {
+  margin-bottom: 30px;
+}
+
+.order-details h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-label {
+  color: #666;
+  font-size: 14px;
+}
+
+.detail-value {
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.order-items-section {
+  margin-bottom: 20px;
+}
+
+.order-items-section h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.order-items-list {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.tracking-order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tracking-order-item:last-child {
+  border-bottom: none;
+}
+
+.item-info h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.item-info p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.item-notes {
+  font-style: italic;
+  color: #999 !important;
+}
+
+.item-price {
+  color: #c41e3a;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.customer-notes {
+  padding: 15px;
+  background: #f8f9ff;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.customer-notes h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.customer-notes p {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+.tracking-actions {
+  text-align: center;
+}
+
+.home-btn {
+  padding: 15px 40px;
+  background: #c41e3a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.home-btn:hover {
+  background: #a52a2a;
+}
+
+.loading {
+  text-align: center;
+  padding: 100px;
+  font-size: 24px;
+  color: #c41e3a;
+}
+
+.error-page {
+  text-align: center;
+  padding: 100px;
+}
+
+.error-page h2 {
+  color: #ff4444;
+  margin-bottom: 20px;
+}
+
+.error-page button {
+  padding: 12px 24px;
+  background: #c41e3a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tracking-container {
+    padding: 20px;
+  }
+}
+

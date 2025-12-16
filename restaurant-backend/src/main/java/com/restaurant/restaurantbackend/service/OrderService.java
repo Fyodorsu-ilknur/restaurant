@@ -3,6 +3,7 @@ package com.restaurant.restaurantbackend.service;
 import com.restaurant.restaurantbackend.dto.OrderNotificationDTO;
 import com.restaurant.restaurantbackend.model.Order;
 import com.restaurant.restaurantbackend.repository.OrderRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,12 +64,21 @@ public class OrderService {
         return orderRepository.findAll();
     }
     
-    public Optional<Order> getOrderById(Long id) {
+    public Optional<Order> getOrderById(@NonNull Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Order ID cannot be null");
+        }
         return orderRepository.findById(id);
     }
     
     @Transactional
-    public Order updateOrderStatus(Long orderId, String status) {
+    public Order updateOrderStatus(@NonNull Long orderId, @NonNull String status) {
+        if (orderId == null) {
+            throw new IllegalArgumentException("Order ID cannot be null");
+        }
+        if (status == null || status.isEmpty()) {
+            throw new IllegalArgumentException("Status cannot be null or empty");
+        }
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
         

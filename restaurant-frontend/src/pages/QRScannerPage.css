@@ -1,0 +1,93 @@
+.qr-scanner-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+  padding: 20px;
+}
+
+.qr-scanner-container {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.qr-scanner-container h1 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.qr-reader-wrapper {
+  position: relative;
+  margin: 20px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+}
+
+#qr-reader {
+  border-radius: 10px;
+}
+
+#qr-reader__dashboard {
+  display: none; /* html5-qrcode'un kendi dashboard'unu gizle */
+}
+
+.scan-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #c41e3a, transparent);
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 10%;
+  }
+  50% {
+    top: 90%;
+  }
+  100% {
+    top: 10%;
+  }
+}
+
+.scanning-message {
+  padding: 40px;
+  color: #c41e3a;
+  font-size: 18px;
+}
+
+.manual-enter-btn {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: #c41e3a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.manual-enter-btn:hover {
+  background: #a52a2a;
+}
+
