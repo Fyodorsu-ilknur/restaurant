@@ -37,7 +37,7 @@ function OrderManagement() {
       
       setOrders(sortedOrders)
     } catch (error) {
-      console.error('Siparişler yüklenemedi:', error)
+      // Siparişler yükleme hatası toast ile gösteriliyor
       toast.error('Siparişler yüklenemedi')
     } finally {
       setLoading(false)
@@ -104,7 +104,7 @@ function OrderManagement() {
         setSelectedOrder(response.data)
       }
     } catch (error) {
-      console.error('Sipariş durumu güncellenemedi:', error)
+      // Sipariş durumu güncelleme hatası toast ile gösteriliyor
       toast.error('Sipariş durumu güncellenemedi')
     }
   }
@@ -252,7 +252,7 @@ function OrderManagement() {
                 orderAPI.getById(order.id)
                   .then(response => setSelectedOrder(response.data))
                   .catch(error => {
-                    console.error('Sipariş detayı yüklenemedi:', error)
+                    // Sipariş detayı yükleme hatası
                     toast.error('Sipariş detayı yüklenemedi')
                   })
               }}

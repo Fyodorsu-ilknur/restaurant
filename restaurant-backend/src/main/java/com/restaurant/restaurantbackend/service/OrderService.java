@@ -2,7 +2,9 @@ package com.restaurant.restaurantbackend.service;
 
 import com.restaurant.restaurantbackend.dto.OrderNotificationDTO;
 import com.restaurant.restaurantbackend.model.Order;
+import com.restaurant.restaurantbackend.model.RestaurantTable;
 import com.restaurant.restaurantbackend.repository.OrderRepository;
+import com.restaurant.restaurantbackend.repository.RestaurantTableRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,18 +19,53 @@ import java.util.Optional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final RestaurantTableRepository restaurantTableRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public OrderService(OrderRepository orderRepository, SimpMessagingTemplate messagingTemplate) {
+    public OrderService(OrderRepository orderRepository, 
+                       RestaurantTableRepository restaurantTableRepository,
+                       SimpMessagingTemplate messagingTemplate) {
         this.orderRepository = orderRepository;
+        this.restaurantTableRepository = restaurantTableRepository;
         this.messagingTemplate = messagingTemplate;
     }
 
     @Transactional
     public Order createOrder(Order order) {
-        // RestaurantTable kontrolü
-        if (order.getRestaurantTable() == null || order.getRestaurantTable().getId() == null) {
-            throw new IllegalArgumentException("Order must have a valid restaurant table");
+        try {
+            // RestaurantTable kontrolü
+            if (order.getRestaurantTable() == null || order.getRestaurantTable().getId() == null) {
+                System.err.println("❌ Sipariş oluşturma hatası: RestaurantTable null veya ID null");
+                throw new IllegalArgumentException("Order must have a valid restaurant table");
+            }
+            
+            // Masa ID'sinin veritabanında olup olmadığını kontrol et
+            Long tableId = order.getRestaurantTable().getId();
+            System.out.println("🔍 Masa ID kontrol ediliyor: " + tableId);
+            
+            Optional<RestaurantTable> tableOptional = restaurantTableRepository.findById(tableId);
+            if (tableOptional.isEmpty()) {
+                System.err.println("❌ Masa bulunamadı. Masa ID: " + tableId);
+                // Tüm masaları listele (debug için)
+                List<RestaurantTable> allTables = restaurantTableRepository.findAll();
+                System.out.println("📋 Mevcut masalar: " + allTables.stream()
+                    .map(t -> "ID: " + t.getId() + ", Numara: " + t.getTableNumber())
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("Hiç masa yok"));
+                throw new IllegalArgumentException("Masa bulunamadı. Masa ID: " + tableId + ". Lütfen geçerli bir masa seçin.");
+            }
+            
+            RestaurantTable table = tableOptional.get();
+            System.out.println("✅ Masa bulundu: ID=" + table.getId() + ", Numara=" + table.getTableNumber());
+            // Masa bilgisini order'a set et (lazy loading sorunlarını önlemek için)
+            order.setRestaurantTable(table);
+        } catch (IllegalArgumentException e) {
+            // Zaten logladık, tekrar fırlat
+            throw e;
+        } catch (Exception e) {
+            System.err.println("❌ Beklenmeyen hata: " + e.getClass().getName() + " - " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Sipariş oluşturulurken beklenmeyen hata: " + e.getMessage(), e);
         }
         
         // OrderItems null kontrolü
@@ -74,6 +111,13 @@ public class OrderService {
             throw new IllegalArgumentException("Order ID cannot be null");
         }
         return orderRepository.findById(id);
+    }
+
+    public List<Order> getOrdersByTableId(@NonNull Long tableId) {
+        if (tableId == null) {
+            throw new IllegalArgumentException("Table ID cannot be null");
+        }
+        return orderRepository.findByRestaurantTableId(tableId);
     }
     
     @Transactional

@@ -48,7 +48,7 @@ function MenuManagement() {
       setCategories(categoriesRes.data || [])
       setProducts(productsRes.data || [])
     } catch (error) {
-      console.error('Veri yükleme hatası:', error)
+      // Veri yükleme hatası toast ile gösteriliyor
       toast.error('Veriler yüklenemedi')
     } finally {
       setLoading(false)
@@ -112,7 +112,7 @@ function MenuManagement() {
       setShowProductModal(false)
       loadData()
     } catch (error) {
-      console.error('Ürün kaydetme hatası:', error)
+      // Ürün kaydetme hatası toast ile gösteriliyor
       toast.error('Ürün kaydedilemedi')
     }
   }
@@ -127,7 +127,7 @@ function MenuManagement() {
       toast.success('Ürün silindi')
       loadData()
     } catch (error) {
-      console.error('Ürün silme hatası:', error)
+      // Ürün silme hatası toast ile gösteriliyor
       toast.error('Ürün silinemedi')
     }
   }
@@ -177,7 +177,7 @@ function MenuManagement() {
       setShowCategoryModal(false)
       loadData()
     } catch (error) {
-      console.error('Kategori kaydetme hatası:', error)
+      // Kategori kaydetme hatası toast ile gösteriliyor
       toast.error('Kategori kaydedilemedi')
     }
   }
@@ -192,7 +192,7 @@ function MenuManagement() {
       toast.success('Kategori silindi')
       loadData()
     } catch (error) {
-      console.error('Kategori silme hatası:', error)
+      // Kategori silme hatası toast ile gösteriliyor
       toast.error('Kategori silinemedi')
     }
   }

@@ -12,6 +12,7 @@ function KitchenPage() {
   const [stompClient, setStompClient] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [notifications, setNotifications] = useState([])
 
   // WebSocket bağlantısı kur
   useEffect(() => {
@@ -22,38 +23,66 @@ function KitchenPage() {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        console.log('WebSocket bağlantısı kuruldu')
+        // WebSocket bağlantısı kuruldu
+        toast.success('Mutfak ekranı bağlandı', { autoClose: 2000 })
         
         // Mutfak ekranına bildirimler için abone ol
         client.subscribe('/topic/kitchen', (message) => {
-          const notification = JSON.parse(message.body)
-          console.log('Yeni bildirim:', notification)
-          console.log('Bildirim tipi kontrolü - orderId:', notification.orderId, 'requestId:', notification.requestId)
-          
-          // Sipariş bildirimi mi yoksa istek bildirimi mi?
-          if (notification.orderId !== undefined && notification.orderId !== null) {
-            // Sipariş bildirimi
-            toast.info(notification.message || 'Yeni sipariş geldi!', {
-              position: 'top-right',
-              autoClose: 3000
-            })
-            loadOrders()
-          } else if (notification.requestId !== undefined && notification.requestId !== null) {
-            // İstek/Şikayet bildirimi
-            const message = notification.notificationMessage || notification.message || 'Yeni istek/şikayet geldi!'
-            toast.warning(message, {
-              position: 'top-right',
-              autoClose: 5000
-            })
-            console.log('İstek/Şikayet bildirimi gösterildi:', message)
-          } else {
-            // Bilinmeyen bildirim tipi - logla
-            console.warn('Bilinmeyen bildirim tipi:', notification)
+          try {
+            const notification = JSON.parse(message.body)
+            // Yeni bildirim alındı - Debug için
+            console.log('🔔 Mutfak ekranına bildirim geldi:', notification)
+            
+            // Sipariş bildirimi mi yoksa istek bildirimi mi?
+            if (notification.orderId !== undefined && notification.orderId !== null) {
+              // Sipariş bildirimi
+              toast.info(notification.message || 'Yeni sipariş geldi!', {
+                position: 'top-right',
+                autoClose: 3000
+              })
+              loadOrders()
+            } else if (notification.requestId !== undefined && notification.requestId !== null) {
+              // İstek/Şikayet bildirimi
+              const messageText = notification.notificationMessage || notification.message || 'Yeni istek/şikayet geldi!'
+              
+              // Bildirimi listeye ekle
+              const newNotification = {
+                id: Date.now(),
+                requestId: notification.requestId,
+                tableId: notification.tableId,
+                tableNumber: notification.tableNumber,
+                requestType: notification.requestType,
+                message: messageText,
+                createdAt: new Date()
+              }
+              setNotifications(prev => [newNotification, ...prev])
+              
+              // Toast bildirimi göster
+              toast.warning(messageText, {
+                position: 'top-right',
+                autoClose: 5000,
+                icon: '🔔'
+              })
+              // İstek/Şikayet bildirimi gösterildi
+            } else {
+              // Bilinmeyen bildirim formatı
+              console.warn('⚠️ Bilinmeyen bildirim formatı:', notification)
+              toast.info('Yeni bildirim geldi', {
+                position: 'top-right',
+                autoClose: 3000
+              })
+            }
+          } catch (error) {
+            // Bildirim parse hatası
+            console.error('❌ Bildirim parse hatası:', error, message.body)
+            toast.error('Bildirim işlenirken hata oluştu')
           }
         })
       },
       onStompError: (frame) => {
-        console.error('WebSocket hatası:', frame)
+        // WebSocket hatası
+        console.error('❌ WebSocket hatası:', frame)
+        toast.error('WebSocket bağlantı hatası')
       }
     })
 
@@ -78,7 +107,7 @@ function KitchenPage() {
       const response = await axios.get(`${API_BASE_URL}/orders`)
       setOrders(response.data || [])
     } catch (error) {
-      console.error('Siparişler yüklenemedi:', error)
+      // Siparişler yükleme hatası toast ile gösteriliyor
       toast.error('Siparişler yüklenemedi')
     } finally {
       setLoading(false)
@@ -98,7 +127,7 @@ function KitchenPage() {
         setSelectedOrder(response.data)
       }
     } catch (error) {
-      console.error('Sipariş durumu güncellenemedi:', error)
+      // Sipariş durumu güncelleme hatası toast ile gösteriliyor
       toast.error('Sipariş durumu güncellenemedi')
     }
   }
@@ -160,6 +189,10 @@ function KitchenPage() {
     return status !== 'DELIVERED' && status !== 'TESLİM EDİLDİ'
   })
 
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
+  }
+
   const formatDate = (dateString) => {
     if (!dateString) return ''
     const date = new Date(dateString)
@@ -180,10 +213,55 @@ function KitchenPage() {
     <div className="kitchen-page">
       <header className="kitchen-header">
         <h1>🍳 Mutfak Ekranı</h1>
-        <button className="refresh-btn" onClick={loadOrders}>
-          🔄 Yenile
-        </button>
+        <div className="header-right">
+          {notifications.length > 0 && (
+            <div className="notifications-badge">
+              🔔 {notifications.length}
+            </div>
+          )}
+          <button className="refresh-btn" onClick={loadOrders}>
+            🔄 Yenile
+          </button>
+        </div>
       </header>
+
+      {/* Bildirimler Listesi */}
+      {notifications.length > 0 && (
+        <div className="notifications-panel">
+          <div className="notifications-header">
+            <h3>🔔 Bildirimler ({notifications.length})</h3>
+            <button className="clear-notifications-btn" onClick={() => setNotifications([])}>
+              Temizle
+            </button>
+          </div>
+          <div className="notifications-list">
+            {notifications.map(notif => (
+              <div key={notif.id} className={`notification-item ${notif.requestType === 'GARSON_CAĞIR' ? 'garson-call' : ''}`}>
+                <div className="notification-content">
+                  <div className="notification-icon">
+                    {notif.requestType === 'GARSON_CAĞIR' ? '🛎️' : 
+                     notif.requestType === 'İSTEK' ? '📋' : 
+                     notif.requestType === 'ŞİKAYET' ? '⚠️' : '🔔'}
+                  </div>
+                  <div className="notification-text">
+                    <p className="notification-message">{notif.message}</p>
+                    <p className="notification-time">
+                      {notif.createdAt.toLocaleTimeString('tr-TR')}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  className="notification-close"
+                  onClick={() => removeNotification(notif.id)}
+                  title="Kapat"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="kitchen-content">
         <div className="orders-list">
@@ -204,7 +282,7 @@ function KitchenPage() {
                     axios.get(`${API_BASE_URL}/orders/${order.id}`)
                       .then(response => setSelectedOrder(response.data))
                       .catch(error => {
-                        console.error('Sipariş detayı yüklenemedi:', error)
+                        // Sipariş detayı yükleme hatası
                         toast.error('Sipariş detayı yüklenemedi')
                       })
                   }}

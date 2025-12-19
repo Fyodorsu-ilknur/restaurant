@@ -22,7 +22,8 @@ function OrderTrackingPage() {
     return () => {
       websocketService.disconnect()
     }
-  }, [orderId, tableId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId])
 
   const loadOrder = async () => {
     try {
@@ -31,7 +32,7 @@ function OrderTrackingPage() {
       updateStatusHistory(response.data.status)
     } catch (error) {
       toast.error('Sipariş bilgisi yüklenemedi')
-      console.error(error)
+      // Sipariş yükleme hatası toast ile gösteriliyor
     } finally {
       setLoading(false)
     }
@@ -54,7 +55,7 @@ function OrderTrackingPage() {
         })
       }
     } catch (error) {
-      console.error('WebSocket bağlantı hatası:', error)
+      // WebSocket bağlantı hatası sessizce işleniyor
     }
   }
 

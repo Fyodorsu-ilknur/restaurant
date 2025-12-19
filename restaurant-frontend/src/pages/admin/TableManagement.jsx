@@ -43,7 +43,7 @@ function TableManagement() {
       
       setTables(sortedTables)
     } catch (error) {
-      console.error('Masalar yüklenemedi:', error)
+      // Masalar yükleme hatası toast ile gösteriliyor
       toast.error('Masalar yüklenemedi')
     } finally {
       setLoading(false)
@@ -81,7 +81,7 @@ function TableManagement() {
     try {
       const tableId = editingTable?.id
       if (editingTable && tableId) {
-        console.log('Güncellenecek masa ID:', tableId, 'Masa:', editingTable.tableNumber)
+        // Masa güncelleniyor
         await tableAPI.update(tableId, { ...tableForm, id: tableId })
         toast.success('Masa güncellendi')
       } else {
@@ -99,8 +99,7 @@ function TableManagement() {
       })
       loadTables()
     } catch (error) {
-      console.error('Masa kaydetme hatası:', error)
-      console.error('Hata detayı:', error.response?.data)
+      // Masa kaydetme hatası toast ile gösteriliyor
       toast.error('Masa kaydedilemedi')
     }
   }
@@ -115,7 +114,7 @@ function TableManagement() {
       toast.success('Masa silindi')
       loadTables()
     } catch (error) {
-      console.error('Masa silme hatası:', error)
+      // Masa silme hatası toast ile gösteriliyor
       toast.error('Masa silinemedi')
     }
   }
@@ -128,7 +127,7 @@ function TableManagement() {
       setQrCodeImage(imageUrl)
       setShowQRModal(true)
     } catch (error) {
-      console.error('QR kod yükleme hatası:', error)
+      // QR kod yükleme hatası toast ile gösteriliyor
       toast.error('QR kod yüklenemedi')
     }
   }
@@ -146,7 +145,7 @@ function TableManagement() {
       window.URL.revokeObjectURL(url)
       toast.success('QR kod indirildi')
     } catch (error) {
-      console.error('QR kod indirme hatası:', error)
+      // QR kod indirme hatası toast ile gösteriliyor
       toast.error('QR kod indirilemedi')
     }
   }
@@ -157,7 +156,7 @@ function TableManagement() {
       toast.success('QR kod yeniden oluşturuldu')
       loadTables()
     } catch (error) {
-      console.error('QR kod yeniden oluşturma hatası:', error)
+      // QR kod yeniden oluşturma hatası toast ile gösteriliyor
       toast.error('QR kod yeniden oluşturulamadı')
     }
   }
@@ -171,7 +170,7 @@ function TableManagement() {
       toast.success(`Masa ${!table.occupied ? 'dolu' : 'boş'} olarak işaretlendi`)
       loadTables()
     } catch (error) {
-      console.error('Masa durumu güncelleme hatası:', error)
+      // Masa durumu güncelleme hatası toast ile gösteriliyor
       toast.error('Masa durumu güncellenemedi')
     }
   }

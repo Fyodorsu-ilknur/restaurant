@@ -45,6 +45,15 @@
   white-space: nowrap;
 }
 
+.orders-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.orders-btn:hover {
+  background: #45a049;
+}
+
 .garson-btn {
   background: #c41e3a;
   color: white;
@@ -506,17 +515,122 @@
   box-shadow: 0 4px 12px rgba(196, 30, 58, 0.4);
 }
 
+/* Siparişlerim Modal */
+.orders-modal {
+  max-width: 600px;
+  max-height: 80vh;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+.order-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.order-card:hover {
+  border-color: #c41e3a;
+  box-shadow: 0 4px 12px rgba(196, 30, 58, 0.2);
+  transform: translateY(-2px);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.order-info h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.order-date {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.order-status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.order-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-items-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+}
+
+.order-item-preview {
+  background: #f5f5f5;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #666;
+}
+
+.order-item-more {
+  background: #e0e0e0;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
+.order-total {
+  font-size: 18px;
+  color: #c41e3a;
+  font-weight: 700;
+}
+
+.empty-orders {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-orders p {
+  font-size: 16px;
+  margin: 0;
+}
+
 /* Chatbot Widget */
 .chatbot-widget {
   position: fixed;
   bottom: 20px;
-  right: 20px;
-  width: 380px;
-  max-height: 600px;
+  left: 20px; /* Sol alt köşede - sepet butonunun üstüne gelmez */
+  width: 360px;
+  max-height: 500px;
   background: white;
   border-radius: 20px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 999;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
@@ -524,7 +638,7 @@
 }
 
 .chatbot-widget.open {
-  height: 600px;
+  height: 500px;
 }
 
 .chatbot-header {
@@ -743,13 +857,15 @@
 
   .chatbot-widget {
     width: calc(100% - 40px);
-    right: 20px;
     left: 20px;
-    max-height: 500px;
+    right: 20px;
+    bottom: 100px; /* Mobilde sepet butonunun üstünde */
+    max-height: 400px;
   }
 
   .chatbot-widget.open {
-    height: 500px;
+    height: 400px;
+    bottom: 100px; /* Açıkken de aynı yükseklikte */
   }
 }
 

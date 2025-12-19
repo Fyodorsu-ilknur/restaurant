@@ -40,7 +40,7 @@ function AdminDashboard() {
         pendingRequests: requests.length
       })
     } catch (error) {
-      console.error('İstatistikler yüklenemedi:', error)
+      // İstatistikler yükleme hatası toast ile gösteriliyor
       toast.error('İstatistikler yüklenemedi')
     } finally {
       setLoading(false)

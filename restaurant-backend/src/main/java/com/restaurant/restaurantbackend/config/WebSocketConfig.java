@@ -26,7 +26,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // Frontend'in WebSocket bağlantısı kurmak için kullanacağı endpoint
         // SOCKJS fallback desteği ile tarayıcı uyumluluğu sağlanır
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("*") // Geliştirme için tüm origin'lere izin ver
+                .setAllowedOriginPatterns("*") // Wildcard pattern kullan (credentials ile uyumlu)
                 .withSockJS();
     }
 }

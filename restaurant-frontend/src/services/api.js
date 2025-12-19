@@ -47,6 +47,7 @@ export const tableAPI = {
 export const orderAPI = {
   getAll: () => api.get('/orders'),
   getById: (id) => api.get(`/orders/${id}`),
+  getByTableId: (tableId) => api.get(`/orders/table/${tableId}`),
   create: (order) => api.post('/orders', order),
   updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
 }

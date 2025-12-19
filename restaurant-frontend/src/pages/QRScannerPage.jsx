@@ -53,7 +53,7 @@ function QRScannerPage() {
       
       setHtml5QrCode(qrCode)
     } catch (err) {
-      console.error('QR kod okutucu başlatılamadı:', err)
+      // QR kod okutucu başlatılamadı
       toast.error('Kamera erişimi sağlanamadı. Lütfen tarayıcı izinlerini kontrol edin.')
       setScanning(false)
     }
@@ -66,7 +66,7 @@ function QRScannerPage() {
         await html5QrCode.clear()
       } catch (err) {
         // Hata durumunda sessizce devam et
-        console.log('QR kod okutucu durduruldu')
+        // QR kod okutucu durduruldu
       } finally {
         setHtml5QrCode(null)
         setScanning(false)
@@ -105,7 +105,7 @@ function QRScannerPage() {
         toast.success(`Masa ${tableId} bulundu!`)
         navigate(`/menu?tableId=${tableId}`)
       } else {
-        console.error('QR kod parse edilemedi:', err)
+        // QR kod parse edilemedi
         toast.error('Geçersiz QR kod. Lütfen masadaki QR kodu okutun.')
       }
     }

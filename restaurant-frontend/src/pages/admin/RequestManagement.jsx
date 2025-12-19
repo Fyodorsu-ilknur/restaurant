@@ -36,7 +36,7 @@ function RequestManagement() {
       
       setRequests(sortedRequests)
     } catch (error) {
-      console.error('İstekler yüklenemedi:', error)
+      // İstekler yükleme hatası toast ile gösteriliyor
       toast.error('İstekler yüklenemedi')
     } finally {
       setLoading(false)
@@ -73,7 +73,7 @@ function RequestManagement() {
         setSelectedRequest(response.data)
       }
     } catch (error) {
-      console.error('İstek durumu güncellenemedi:', error)
+      // İstek durumu güncelleme hatası toast ile gösteriliyor
       toast.error('İstek durumu güncellenemedi')
     }
   }
@@ -227,7 +227,7 @@ function RequestManagement() {
                 tableRequestAPI.getById(request.id)
                   .then(response => setSelectedRequest(response.data))
                   .catch(error => {
-                    console.error('İstek detayı yüklenemedi:', error)
+                    // İstek detayı yükleme hatası
                     toast.error('İstek detayı yüklenemedi')
                   })
               }}

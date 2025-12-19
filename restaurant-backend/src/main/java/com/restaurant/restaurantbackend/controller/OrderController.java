@@ -33,10 +33,43 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/table/{tableId}")
+    public ResponseEntity<List<Order>> getOrdersByTableId(@PathVariable @NonNull Long tableId) {
+        List<Order> orders = orderService.getOrdersByTableId(tableId);
+        return ResponseEntity.ok(orders);
+    }
+
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody @NonNull Order order) {
-        Order newOrder = orderService.createOrder(order);
-        return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+    public ResponseEntity<?> createOrder(@RequestBody @NonNull Order order) {
+        try {
+            Order newOrder = orderService.createOrder(order);
+            return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            // Masa bulunamadı veya geçersiz veri
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            // Diğer hatalar
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Sipariş oluşturulurken hata oluştu: " + e.getMessage()));
+        }
+    }
+    
+    // Hata mesajı için iç sınıf
+    private static class ErrorResponse {
+        private String message;
+        
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
+        
+        public String getMessage() {
+            return message;
+        }
+        
+        public void setMessage(String message) {
+            this.message = message;
+        }
     }
 
     // Sadece siparişin durumunu güncellemek için özel bir endpoint

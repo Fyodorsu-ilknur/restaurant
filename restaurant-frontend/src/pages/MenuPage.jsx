@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { categoryAPI, productAPI, tableRequestAPI, tableAPI, chatbotAPI } from '../services/api'
+import { categoryAPI, productAPI, tableRequestAPI, tableAPI, chatbotAPI, orderAPI } from '../services/api'
 import { toast } from 'react-toastify'
 import './MenuPage.css'
 
@@ -25,6 +25,9 @@ function MenuPage() {
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
   const chatEndRef = useRef(null)
+  const [showOrdersModal, setShowOrdersModal] = useState(false)
+  const [orders, setOrders] = useState([])
+  const [ordersLoading, setOrdersLoading] = useState(false)
 
   const allergenBadges = (product) => {
     const allergens = product.allergens || []
@@ -99,18 +102,50 @@ function MenuPage() {
       if (!isNaN(tableIdNum)) {
         try {
           const response = await tableAPI.getById(tableIdNum)
-          setTable(response.data)
-          return
+          if (response.data && response.data.id) {
+            setTable(response.data)
+            return
+          }
         } catch (idError) {
           // ID ile bulunamazsa tableNumber olarak dene
         }
       }
       
-      // tableNumber olarak dene
-      const response = await tableAPI.getByNumber(tableId)
-      setTable(response.data)
+      // tableNumber olarak dene (örn: "Masa 65" veya sadece "65")
+      let tableNumberToSearch = tableId
+      
+      // Eğer tableId sayısal bir değerse, "Masa {numara}" formatında dene
+      if (!isNaN(parseInt(tableId))) {
+        tableNumberToSearch = `Masa ${tableId}`
+      }
+      
+      try {
+        const response = await tableAPI.getByNumber(tableNumberToSearch)
+        if (response.data && response.data.id) {
+          setTable(response.data)
+          return
+        }
+      } catch (numberError) {
+        // "Masa X" formatı da çalışmazsa, sadece sayıyı dene
+        if (tableNumberToSearch.startsWith('Masa ')) {
+          const justNumber = tableNumberToSearch.replace('Masa ', '')
+          try {
+            const response = await tableAPI.getByNumber(justNumber)
+            if (response.data && response.data.id) {
+              setTable(response.data)
+              return
+            }
+          } catch (finalError) {
+            // Son deneme de başarısız
+          }
+        }
+      }
+      
+      // Hiçbir yöntemle masa bulunamadı
+      toast.error(`Masa bulunamadı: ${tableId}. Lütfen QR kodu tekrar tarayın.`)
     } catch (error) {
-      console.error('Masa yükleme hatası:', error)
+      // Masa yükleme hatası
+      toast.error(`Masa bilgisi yüklenirken hata oluştu: ${tableId}`)
     }
   }
 
@@ -122,8 +157,6 @@ function MenuPage() {
         productAPI.getAll()
       ])
       
-      console.log('Categories Response:', categoriesRes)
-      console.log('Products Response:', productsRes)
       
       // Backend'den gelen verileri düzelt
       const categoriesData = categoriesRes.data || []
@@ -186,8 +219,6 @@ function MenuPage() {
           }
         })
       
-      console.log('Processed Categories:', categories)
-      console.log('Processed Products:', products)
       
       setCategories(categories)
       setProducts(products)
@@ -197,8 +228,7 @@ function MenuPage() {
       }
     } catch (error) {
       toast.error('Menü yüklenirken hata oluştu: ' + (error.message || 'Bilinmeyen hata'))
-      console.error('Hata detayı:', error)
-      console.error('Response:', error.response?.data)
+      // Hata detayları toast ile gösteriliyor
     } finally {
       setLoading(false)
     }
@@ -332,7 +362,7 @@ function MenuPage() {
       await tableRequestAPI.create(request)
       toast.success('Garson çağrıldı! En kısa sürede yanınızda olacak.')
     } catch (error) {
-      console.error('Garson çağırma hatası:', error)
+      // Garson çağırma hatası toast ile gösteriliyor
       toast.error('Garson çağrılırken hata oluştu')
     }
   }
@@ -343,9 +373,63 @@ function MenuPage() {
     setShowRequestModal(true)
   }
 
-  const handleSubmitRequest = async () => {
+  const handleShowOrders = async () => {
     if (!table || !table.id) {
       toast.error('Masa bilgisi bulunamadı')
+      return
+    }
+
+    setShowOrdersModal(true)
+    setOrdersLoading(true)
+
+    try {
+      const response = await orderAPI.getByTableId(table.id)
+      // Siparişleri tarihe göre sırala (en yeni önce)
+      const sortedOrders = (response.data || []).sort((a, b) => {
+        const dateA = new Date(a.createdAt || 0)
+        const dateB = new Date(b.createdAt || 0)
+        return dateB - dateA
+      })
+      setOrders(sortedOrders)
+    } catch (error) {
+      toast.error('Siparişler yüklenemedi')
+      setOrders([])
+    } finally {
+      setOrdersLoading(false)
+    }
+  }
+
+  const getStatusText = (status) => {
+    const statusMap = {
+      'PENDING': 'Sipariş Alındı',
+      'CONFIRMED': 'Sipariş Onaylandı',
+      'PREPARING': 'Hazırlanıyor',
+      'READY': 'Hazır',
+      'DELIVERED': 'Teslim Edildi',
+      'COMPLETED': 'Tamamlandı',
+      'CANCELLED': 'İptal Edildi'
+    }
+    return statusMap[status] || status
+  }
+
+  const getStatusColor = (status) => {
+    const colorMap = {
+      'PENDING': '#ff9800',
+      'CONFIRMED': '#2196f3',
+      'PREPARING': '#9c27b0',
+      'READY': '#4caf50',
+      'DELIVERED': '#8bc34a',
+      'COMPLETED': '#c41e3a',
+      'CANCELLED': '#f44336'
+    }
+    return colorMap[status] || '#999'
+  }
+
+  const handleSubmitRequest = async () => {
+    if (!table || !table.id) {
+      toast.error('Masa bilgisi bulunamadı. Lütfen sayfayı yenileyin veya QR kodu tekrar tarayın.')
+      // Masa bilgisini tekrar yüklemeyi dene
+      await loadTable()
       return
     }
 
@@ -373,7 +457,7 @@ function MenuPage() {
       setShowRequestModal(false)
       setRequestMessage('')
     } catch (error) {
-      console.error('İstek gönderme hatası:', error)
+      // İstek gönderme hatası toast ile gösteriliyor
       toast.error('İstek gönderilirken hata oluştu')
     }
   }
@@ -396,7 +480,7 @@ function MenuPage() {
       
       setChatMessages(prev => [...prev, { type: 'bot', message: botResponse }])
     } catch (error) {
-      console.error('Chatbot hatası:', error)
+      // Chatbot hatası toast ile gösteriliyor
       setChatMessages(prev => [...prev, { 
         type: 'bot', 
         message: 'Üzgünüm, bir hata oluştu. Lütfen daha sonra tekrar deneyin.' 
@@ -430,6 +514,13 @@ function MenuPage() {
             <p className="table-info">Masa: {table?.tableNumber || tableId}</p>
           </div>
           <div className="header-actions">
+            <button 
+              className="request-btn orders-btn"
+              onClick={handleShowOrders}
+              title="Siparişlerim"
+            >
+              📋 Siparişlerim
+            </button>
             <button 
               className="request-btn garson-btn"
               onClick={handleRequestGarson}
@@ -640,6 +731,77 @@ function MenuPage() {
               </button>
               <button className="submit-btn" onClick={handleSubmitRequest}>
                 Gönder
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Siparişlerim Modal */}
+      {showOrdersModal && (
+        <div className="modal-overlay" onClick={() => setShowOrdersModal(false)}>
+          <div className="modal-content orders-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>📋 Siparişlerim</h2>
+              <button className="modal-close" onClick={() => setShowOrdersModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              {ordersLoading ? (
+                <div className="loading">Yükleniyor...</div>
+              ) : orders.length === 0 ? (
+                <div className="empty-orders">
+                  <p>Henüz siparişiniz bulunmamaktadır.</p>
+                </div>
+              ) : (
+                <div className="orders-list">
+                  {orders.map((order) => (
+                    <div key={order.id} className="order-card" onClick={() => {
+                      navigate(`/tracking/${order.id}`, { state: { tableId: table?.id } })
+                      setShowOrdersModal(false)
+                    }}>
+                      <div className="order-card-header">
+                        <div className="order-info">
+                          <h3>Sipariş #{order.orderNumber}</h3>
+                          <p className="order-date">
+                            {order.createdAt ? new Date(order.createdAt).toLocaleString('tr-TR') : 'Tarih bilgisi yok'}
+                          </p>
+                        </div>
+                        <div 
+                          className="order-status-badge"
+                          style={{ backgroundColor: getStatusColor(order.status) }}
+                        >
+                          {getStatusText(order.status)}
+                        </div>
+                      </div>
+                      <div className="order-card-body">
+                        <div className="order-items-preview">
+                          {order.orderItems && order.orderItems.length > 0 ? (
+                            <>
+                              {order.orderItems.slice(0, 3).map((item, idx) => (
+                                <span key={idx} className="order-item-preview">
+                                  {item.product?.name || 'Ürün'} x{item.quantity}
+                                </span>
+                              ))}
+                              {order.orderItems.length > 3 && (
+                                <span className="order-item-more">+{order.orderItems.length - 3} daha</span>
+                              )}
+                            </>
+                          ) : (
+                            <span>Ürün bilgisi yok</span>
+                          )}
+                        </div>
+                        <div className="order-total">
+                          <strong>{parseFloat(order.totalAmount || 0).toFixed(2)} ₺</strong>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-btn" onClick={() => setShowOrdersModal(false)}>
+                Kapat
               </button>
             </div>
           </div>

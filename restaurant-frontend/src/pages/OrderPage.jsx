@@ -28,31 +28,61 @@ function OrderPage() {
 
     const currentTableId = tableId || tableIdFromState
     loadTable(currentTableId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableId, tableIdFromState])
 
   const loadTable = async (id) => {
+    if (!id) return
+    
     try {
       // Önce ID olarak dene
       const tableIdNum = parseInt(id)
-      if (!isNaN(tableIdNum)) {
+      if (!isNaN(tableIdNum) && tableIdNum > 0) {
         try {
           const response = await tableAPI.getById(tableIdNum)
-          setTable(response.data)
-          return
+          if (response.data && response.data.id) {
+            setTable(response.data)
+            return
+          }
         } catch (idError) {
           // ID ile bulunamazsa tableNumber olarak dene
-          console.log('ID ile masa bulunamadı, tableNumber olarak deneniyor:', id)
         }
       }
       
-      // tableNumber olarak dene
-      const response = await tableAPI.getByNumber(id)
-      setTable(response.data)
+      // tableNumber olarak dene (örn: "Masa 10" veya sadece "10")
+      let tableNumberToSearch = id
+      
+      // Eğer id sayısal bir değerse, "Masa {numara}" formatında dene
+      if (!isNaN(parseInt(id))) {
+        tableNumberToSearch = `Masa ${id}`
+      }
+      
+      try {
+        const response = await tableAPI.getByNumber(tableNumberToSearch)
+        if (response.data && response.data.id) {
+          setTable(response.data)
+          return
+        }
+      } catch (numberError) {
+        // "Masa X" formatı da çalışmazsa, sadece sayıyı dene
+        if (tableNumberToSearch.startsWith('Masa ')) {
+          const justNumber = tableNumberToSearch.replace('Masa ', '')
+          try {
+            const response = await tableAPI.getByNumber(justNumber)
+            if (response.data && response.data.id) {
+              setTable(response.data)
+              return
+            }
+          } catch (finalError) {
+            // Son deneme de başarısız - sessizce devam et
+          }
+        }
+      }
+      
+      // Hiçbir yöntemle masa bulunamadı - sessizce devam et
+      // Masa bilgisi yüklenemedi ama sipariş oluşturulabilir
     } catch (error) {
-      console.error('Masa yükleme hatası:', error)
-      console.error('Masa ID/Number:', id)
-      console.error('Hata detayı:', error.response?.data || error.message)
-      toast.error('Masa bilgisi yüklenemedi')
+      // Masa yükleme hatası - sessizce devam et
     }
   }
 
@@ -90,13 +120,97 @@ function OrderPage() {
       if (table && table.id) {
         tableIdForOrder = table.id
       } else {
-        // table yüklenemediyse, tableId'yi parse et
-        const parsedId = parseInt(currentTableId)
-        if (isNaN(parsedId)) {
-          toast.error('Geçersiz masa bilgisi')
-          return
+        // table yüklenemediyse, tekrar yükle
+        await loadTable(currentTableId)
+        
+        // Yükleme sonrası tekrar kontrol et
+        if (table && table.id) {
+          tableIdForOrder = table.id
+        } else {
+          // Hala bulunamadıysa, tableId'yi parse et
+          const parsedId = parseInt(currentTableId)
+          if (isNaN(parsedId)) {
+            // Sayısal değilse, masa numarası olarak tekrar yükle
+            try {
+              const tableResponse = await tableAPI.getByNumber(currentTableId)
+              if (tableResponse.data && tableResponse.data.id) {
+                tableIdForOrder = tableResponse.data.id
+                setTable(tableResponse.data)
+              } else {
+                toast.error('Masa bulunamadı. Lütfen QR kodu tekrar tarayın.')
+                setLoading(false)
+                return
+              }
+            } catch (tableError) {
+              // "Masa X" formatını dene
+              try {
+                const tableResponse = await tableAPI.getByNumber(`Masa ${currentTableId}`)
+                if (tableResponse.data && tableResponse.data.id) {
+                  tableIdForOrder = tableResponse.data.id
+                  setTable(tableResponse.data)
+                } else {
+                  toast.error('Masa bulunamadı. Lütfen QR kodu tekrar tarayın.')
+                  setLoading(false)
+                  return
+                }
+              } catch (finalError) {
+                toast.error('Masa bulunamadı. Lütfen QR kodu tekrar tarayın.')
+                setLoading(false)
+                return
+              }
+            }
+          } else {
+            // Sayısal değer, ID olarak kullan ama önce kontrol et
+            try {
+              const tableResponse = await tableAPI.getById(parsedId)
+              if (tableResponse.data && tableResponse.data.id) {
+                tableIdForOrder = tableResponse.data.id
+                setTable(tableResponse.data)
+              } else {
+                // ID ile bulunamadı, "Masa X" formatında dene
+                try {
+                  const tableResponse2 = await tableAPI.getByNumber(`Masa ${parsedId}`)
+                  if (tableResponse2.data && tableResponse2.data.id) {
+                    tableIdForOrder = tableResponse2.data.id
+                    setTable(tableResponse2.data)
+                  } else {
+                    toast.error('Masa bulunamadı. Lütfen QR kodu tekrar tarayın.')
+                    setLoading(false)
+                    return
+                  }
+                } catch (tableError2) {
+                  toast.error('Masa bulunamadı. Lütfen QR kodu tekrar tarayın.')
+                  setLoading(false)
+                  return
+                }
+              }
+            } catch (idError) {
+              // ID ile bulunamadı, "Masa X" formatında dene
+              try {
+                const tableResponse = await tableAPI.getByNumber(`Masa ${parsedId}`)
+                if (tableResponse.data && tableResponse.data.id) {
+                  tableIdForOrder = tableResponse.data.id
+                  setTable(tableResponse.data)
+                } else {
+                  toast.error('Masa bulunamadı. Lütfen QR kodu tekrar tarayın.')
+                  setLoading(false)
+                  return
+                }
+              } catch (tableError) {
+                toast.error('Masa bulunamadı. Lütfen QR kodu tekrar tarayın.')
+                setLoading(false)
+                return
+              }
+            }
+          }
         }
-        tableIdForOrder = parsedId
+      }
+      
+      // Masa ID'sinin geçerli olduğundan emin ol
+      if (!tableIdForOrder || tableIdForOrder <= 0) {
+        toast.error('Geçersiz masa bilgisi')
+        setLoading(false)
+        return
       }
 
       const order = {
@@ -122,11 +236,28 @@ function OrderPage() {
       // Sipariş takip sayfasına yönlendir
       navigate(`/tracking/${orderId}`, { state: { tableId: currentTableId } })
     } catch (error) {
-      console.error('Sipariş oluşturma hatası:', error)
-      console.error('Hata detayı:', error.response?.data || error.message)
+      // Sipariş oluşturma hatası toast ile gösteriliyor
+      let errorMessage = 'Sipariş oluşturulurken hata oluştu'
       
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Sipariş oluşturulurken hata oluştu'
+      if (error.response) {
+        // Backend'den gelen hata mesajı
+        errorMessage = error.response.data?.message || 
+                      error.response.data?.error || 
+                      error.response.statusText || 
+                      errorMessage
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
       toast.error(errorMessage)
+      
+      // Console'a detaylı hata logla (debug için)
+      console.error('Sipariş oluşturma hatası:', {
+        error,
+        response: error.response,
+        order,
+        tableIdForOrder
+      })
     } finally {
       setLoading(false)
     }
