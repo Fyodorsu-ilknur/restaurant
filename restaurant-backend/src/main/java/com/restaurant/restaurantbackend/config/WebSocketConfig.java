@@ -14,7 +14,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(@NonNull MessageBrokerRegistry config) {
         // "/topic" prefix'i ile başlayan mesajlar tüm abonelere broadcast edilir
-        // Mutfak ekranı ve müşteri ekranı bu topic'lere abone olacak
         config.enableSimpleBroker("/topic");
         
         // "/app" prefix'i ile başlayan mesajlar @MessageMapping ile işlenir
@@ -22,12 +21,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Override
-    public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
-        // Frontend'in WebSocket bağlantısı kurmak için kullanacağı endpoint
-        // SOCKJS fallback desteği ile tarayıcı uyumluluğu sağlanır
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*") // Wildcard pattern kullan (credentials ile uyumlu)
-                .withSockJS();
+   public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
+    registry.addEndpoint("/ws")
+            .setAllowedOrigins("http://localhost:3000") // patterns yerine bunu deneyelim
+            .setAllowedOriginPatterns("http://localhost:3000") 
+            .withSockJS();
     }
 }
-

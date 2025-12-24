@@ -1,19 +1,11 @@
 package com.restaurant.restaurantbackend.model;
+import com.fasterxml.jackson.annotation.JsonManagedReference; // Import zaten varmış, kalsın
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*; // Kod kalabalığı olmasın diye yıldız koydum ama senin tekil importların da kalabilir
 
-// @Data notasyonunu kaldırdık!
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -35,11 +27,12 @@ public class Order {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    // DEĞİŞİKLİK BURADA: Notasyonları ekledik
+    @JsonManagedReference
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderItem> orderItems;
 
-    // --- GETTER VE SETTER METOTLARI ELLE EKLENDİ ---
-
+    // --- GETTER VE SETTER'LARINA DOKUNMADIM, AŞAĞIDA AYNI ŞEKİLDE KALSINLAR ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public RestaurantTable getRestaurantTable() { return restaurantTable; }

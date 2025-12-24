@@ -1,15 +1,9 @@
 package com.restaurant.restaurantbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // YENİ IMPORT
 import java.math.BigDecimal;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
-// @Data notasyonunu kaldırdık!
 @Entity
 @Table(name = "order_items")
 public class OrderItem {
@@ -18,6 +12,8 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // DEĞİŞİKLİK BURADA: Notasyonu ekledik
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
@@ -31,8 +27,7 @@ public class OrderItem {
     private BigDecimal subtotal;
     private String notes;
 
-    // --- GETTER VE SETTER METOTLARI ELLE EKLENDİ ---
-
+    // --- GETTER VE SETTER'LARIN AYNI KALSIN ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Order getOrder() { return order; }

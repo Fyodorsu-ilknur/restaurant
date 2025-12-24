@@ -304,9 +304,7 @@ function KitchenPage() {
                     <p className="order-time">
                       ⏰ {formatDate(order.createdAt)}
                     </p>
-                    <p className="order-total">
-                      💰 {parseFloat(order.totalAmount || 0).toFixed(2)} ₺
-                    </p>
+                    
                     {order.orderItems && (
                       <p className="order-items-count">
                         📦 {order.orderItems.length} ürün
@@ -354,7 +352,7 @@ function KitchenPage() {
                   </span>
                 </p>
                 <p><strong>Tarih:</strong> {formatDate(selectedOrder.createdAt)}</p>
-                <p><strong>Toplam:</strong> {parseFloat(selectedOrder.totalAmount || 0).toFixed(2)} ₺</p>
+                
               </div>
 
               {selectedOrder.orderItems && selectedOrder.orderItems.length > 0 && (
@@ -372,9 +370,12 @@ function KitchenPage() {
                             <p className="item-notes">📝 Not: {item.notes}</p>
                           )}
                         </div>
+
+                        {/*kazancı mutfak personelinin görmesine bence gerek yok yoruma alıyomum
                         <p className="item-price">
                           {parseFloat(item.subtotal || item.unitPrice * item.quantity || 0).toFixed(2)} ₺
-                        </p>
+                        </p>*/}
+
                       </div>
                     ))}
                   </div>
@@ -409,4 +410,3 @@ function KitchenPage() {
 }
 
 export default KitchenPage
-

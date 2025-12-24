@@ -24,6 +24,12 @@
     </properties>
     
   <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Web uygulamaları geliştirmek için temel Spring Boot bağımlılığı -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
