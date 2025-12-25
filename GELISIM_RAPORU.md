@@ -501,35 +501,6 @@
 
 ---
 
-#### 14. Kampanya ve İndirim Yönetimi
-**Durum:** ❌ Yapılmadı  
-**Öncelik:** Düşük
-
-**Yapılacaklar:**
-- [ ] Campaign model ve repository
-- [ ] Kampanya API'leri
-- [ ] Kampanya yönetimi (admin)
-- [ ] İndirim kodları
-- [ ] Sepete indirim uygulama
-- [ ] Kampanya görüntüleme (müşteri)
-
-
----
-
-#### 15. Mobil Uygulama (React Native)
-**Durum:** ❌ Yapılmadı  
-**Öncelik:**  Düşük
-
-**Yapılacaklar:**
-- [ ] React Native proje kurulumu
-- [ ] API entegrasyonu
-- [ ] QR kod okutma (native)
-- [ ] Push notification (native)
-- [ ] App store deployment
-
-
----
-
 ## 📋 Öncelik Sıralaması (Önerilen)
 
 ### Hemen Yapılması Gerekenler
@@ -581,8 +552,6 @@
 - Çoklu dil desteği
 - Bildirim sistemi
 - Rezervasyon sistemi
-- Kampanya yönetimi
-- Mobil uygulama
 
 ---
 
